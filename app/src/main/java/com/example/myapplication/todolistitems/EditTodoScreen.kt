@@ -35,8 +35,7 @@ fun EditTodoScreen(
       .fillMaxSize()
       .padding(16.dp),
     floatingActionButton = {
-      FloatingActionButton(onClick = {
-      }) {
+      FloatingActionButton(onClick = viewModel::saveChanges) {
         Icon(
           imageVector = Icons.Default.Check,
           contentDescription = "Save"
@@ -48,8 +47,9 @@ fun EditTodoScreen(
       modifier = Modifier.fillMaxSize().padding(paddingValues),
     ) {
       TextField(
-        value = "",
-        onValueChange = {
+        value = viewModel.title,
+        onValueChange = { newTitle ->
+          viewModel.onTitleChange(newTitle)
         },
         placeholder = {
           Text(text = "Title")
@@ -58,9 +58,9 @@ fun EditTodoScreen(
       )
       Spacer(modifier = Modifier.height(8.dp))
       TextField(
-        value ="",
-        onValueChange = {
-
+        value = viewModel.description,
+        onValueChange = { newDescription ->
+        viewModel.onDescriptionChange(newDescription)
         },
         placeholder = {
           Text(text = "Description")

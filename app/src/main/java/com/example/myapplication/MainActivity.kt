@@ -11,7 +11,9 @@ import com.example.myapplication.todolistitems.TodoListScreen
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.myapplication.navigation.Routes
+import com.example.myapplication.navigation.sharedViewModel
 import com.example.myapplication.todolistitems.EditTodoScreen
+import com.example.myapplication.todolistitems.TodoListViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,11 +28,13 @@ class MainActivity : ComponentActivity() {
           navController = navController,
           startDestination = Routes.TODO_LIST
         ) {
-          composable(Routes.TODO_LIST) {
+          composable(Routes.TODO_LIST) { entry ->
+            val sharedViewmodel: TodoListViewModel =  entry.sharedViewModel<TodoListViewModel>(navController)
             TodoListScreen(
               onNavigate = { id ->
                 navController.navigate(Routes.ADD_EDIT_TODO + "?todoId=${id}")
-              }
+              },
+              viewModel = sharedViewmodel,
             )
           }
           composable(
@@ -41,10 +45,13 @@ class MainActivity : ComponentActivity() {
                 defaultValue = -1
               }
             )
-          ) {
+          ) { entry ->
+            val sharedViewmodel: TodoListViewModel =  entry.sharedViewModel<TodoListViewModel>(navController)
             EditTodoScreen(onBack = {
               navController.popBackStack()
-            })
+            },
+              viewModel = sharedViewmodel,
+              )
           }
         }
       }

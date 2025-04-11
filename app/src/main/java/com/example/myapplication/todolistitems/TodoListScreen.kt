@@ -44,6 +44,7 @@ fun TodoListScreen(
           modifier = Modifier
             .fillMaxWidth()
             .clickable {
+              viewModel.onIdItemChange(item.id)
               onNavigate(item.id)
             }
             .padding(16.dp),
