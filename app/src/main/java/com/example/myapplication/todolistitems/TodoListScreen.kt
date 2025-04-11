@@ -20,6 +20,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun TodoListScreen(
+  onNavigate: (Int) -> Unit,
   viewModel: TodoListViewModel = viewModel()
 ) {
   val uiState: TodoListUiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -42,7 +43,9 @@ fun TodoListScreen(
           item = item,
           modifier = Modifier
             .fillMaxWidth()
-            .clickable {}
+            .clickable {
+              onNavigate(item.id)
+            }
             .padding(16.dp),
           onDeleteItem = viewModel::onDeleteItem,
           onCheckItem = viewModel::onCheckItem,
