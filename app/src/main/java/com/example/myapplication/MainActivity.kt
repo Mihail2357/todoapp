@@ -37,6 +37,7 @@ class MainActivity : ComponentActivity() {
               viewModel = sharedViewmodel,
             )
           }
+
           composable(
             route = Routes.ADD_EDIT_TODO + "?todoId={todoId}",
             arguments = listOf(
@@ -49,6 +50,7 @@ class MainActivity : ComponentActivity() {
             val sharedViewmodel: TodoListViewModel =  entry.sharedViewModel<TodoListViewModel>(navController)
             EditTodoScreen(onBack = {
               navController.popBackStack()
+              sharedViewmodel.resetValues()
             },
               viewModel = sharedViewmodel,
               )

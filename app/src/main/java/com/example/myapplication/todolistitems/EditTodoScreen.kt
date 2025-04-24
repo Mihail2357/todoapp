@@ -35,7 +35,12 @@ fun EditTodoScreen(
       .fillMaxSize()
       .padding(16.dp),
     floatingActionButton = {
-      FloatingActionButton(onClick = viewModel::saveChanges) {
+      FloatingActionButton(
+        onClick = {
+          viewModel.saveChanges()
+          onBack()
+        }
+      ) {
         Icon(
           imageVector = Icons.Default.Check,
           contentDescription = "Save"
@@ -82,7 +87,7 @@ private fun TopBar(onBack: () -> Unit) {
       IconButton(onClick = onBack) {
         Icon(
           imageVector = Icons.Default.Close,
-          contentDescription = "Save"
+          contentDescription = "Exit"
         )
       }
     }

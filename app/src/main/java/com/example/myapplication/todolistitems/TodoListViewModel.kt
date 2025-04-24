@@ -85,6 +85,11 @@ class TodoListViewModel : ViewModel() {
     }
   }
 
+  fun resetValues() {
+    title = ""
+    description = ""
+  }
+
   private companion object {
     const val TAG = "TodoListViewModel"
   }
