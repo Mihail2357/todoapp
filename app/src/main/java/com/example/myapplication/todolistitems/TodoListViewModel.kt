@@ -1,49 +1,51 @@
 package com.example.myapplication.todolistitems
 
+import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.myapplication.data.TodoDatabase
+import com.example.myapplication.data.TodoRepositoryImpl
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-class TodoListViewModel : ViewModel() {
+class TodoListViewModel(application: Application) : AndroidViewModel(application) {
 
   // TodoList screen
-  private var counter = 1
-  private val currentList = mutableListOf<Item>()
-  private val _uiState = MutableStateFlow(TodoListUiState(emptyList()))
 
-  val uiState = _uiState.asStateFlow()
+  private val repository = TodoRepositoryImpl(TodoDatabase.getDatabase(application).dao)
+
+  val uiState: StateFlow<TodoListUiState> = repository.getTodos().map { itemList ->
+    TodoListUiState(itemList)
+  }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), TodoListUiState(emptyList()))
 
   fun onAddItem() {
-    Log.d(TAG, "Add item with id = $counter")
-    val newItem = Item(title = "Item $counter", description = "Simple Description $counter", id = counter++)
-    currentList.add(newItem)
-    _uiState.value = TodoListUiState(currentList.toList())
-  }
-
-  fun onDeleteItem(id: Int) {
-    Log.d(TAG, "Delete item with id = $id")
-    currentList.removeIf { it.id == id }
-    _uiState.value = TodoListUiState(currentList.toList())
-  }
-
-  fun onCheckItem(id: Int, isChecked: Boolean) {
-    val updatedList = currentList.map { item ->
-      if (item.id == id) {
-        Log.d(TAG, "Change isChecked for item id = $id from ${item.isChecked} to $isChecked")
-        item.copy(isChecked = isChecked)
-      } else {
-        item
-      }
+    Log.d(TAG, "Add item")
+    val newItem = Item(title = "Item", description = "Simple Description")
+    viewModelScope.launch {
+      repository.insertTodo(newItem)
     }
+  }
 
-    currentList.clear() // Clear the old list
-    currentList.addAll(updatedList) // Add the new list
+  fun onDeleteItem(item: Item) {
+    Log.d(TAG, "Delete item with id = ${item.id}")
+    viewModelScope.launch {
+      repository.deleteTodo(item)
+    }
+  }
 
-    _uiState.value = TodoListUiState(currentList.toList())
+  fun onCheckItem(item: Item, isChecked: Boolean) {
+    val newItem = item.copy(isChecked = isChecked)
+
+    viewModelScope.launch {
+      repository.updateTodo(newItem)
+    }
   }
 
    // EditTodoScreen
@@ -68,20 +70,17 @@ class TodoListViewModel : ViewModel() {
 
   fun saveChanges() {
     Log.d(TAG, "Change item $currentItemID")
-    if(currentItemID != null) {
-      val updatedList = currentList.map { item ->
-        if (item.id == currentItemID) {
-          Log.d(TAG, "Change item with id = $currentItemID")
-          item.copy(title = title, description = description)
-        } else {
-          item
+
+    val newTitle = title
+    val newDescription = description
+    viewModelScope.launch {
+      if(currentItemID != null) {
+        val currentItem = repository.getTodoById(currentItemID!!)
+        val newItem = currentItem?.copy(title = newTitle, description = newDescription)
+        if (newItem != null) {
+          repository.updateTodo(newItem)
         }
       }
-
-      currentList.clear() // Clear the old list
-      currentList.addAll(updatedList) // Add the new list
-
-      _uiState.value = TodoListUiState(currentList.toList())
     }
   }
 

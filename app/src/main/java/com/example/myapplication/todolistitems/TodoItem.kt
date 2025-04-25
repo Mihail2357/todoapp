@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.sp
 fun TodoItem(
   item: Item,
   modifier: Modifier = Modifier,
-  onDeleteItem: (Int) -> Unit,
-  onCheckItem: (Int, Boolean) -> Unit,
+  onDeleteItem: (Item) -> Unit,
+  onCheckItem: (Item, Boolean) -> Unit,
 ) {
   Row(
     modifier = modifier,
@@ -38,7 +38,7 @@ fun TodoItem(
           fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.width(8.dp))
-        IconButton(onClick = { onDeleteItem(item.id) })
+        IconButton(onClick = { onDeleteItem(item) })
         {
           Icon(
             imageVector = Icons.Default.Delete,
@@ -51,7 +51,7 @@ fun TodoItem(
     }
     Checkbox(
       checked = item.isChecked,
-      onCheckedChange = { isChecked -> onCheckItem(item.id, isChecked)
+      onCheckedChange = { isChecked -> onCheckItem(item, isChecked)
       }
     )
   }
